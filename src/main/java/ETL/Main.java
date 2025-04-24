@@ -37,8 +37,14 @@ public class Main implements RequestHandler<S3Event, String> {
             List<String> cabecalho = dadosCSV.get(0);
             List<List<String>> componenteDados = dadosCSV.subList(1,dadosCSV.size());
 
+            List<List<Double>> componenteNumerico = componenteDados.stream()
+                    .map(linha -> linha.stream()
+                            .map(v -> Double.parseDouble(v.replace(",", ".")))
+                            .toList())
+                    .toList();
+
             CsvWriter csvWriter = new CsvWriter();
-            ByteArrayOutputStream csvOutputStream = csvWriter.writeCsv(cabecalho, componenteDados);
+            ByteArrayOutputStream csvOutputStream = csvWriter.writeCsv(cabecalho, componenteNumerico);
 
             // Converte o ByteArrayOutputStream para InputStream para enviar ao bucket de destino
             InputStream csvInputStream = new ByteArrayInputStream(csvOutputStream.toByteArray());
