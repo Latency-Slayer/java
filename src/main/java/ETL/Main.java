@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main implements RequestHandler<S3Event, String> {
@@ -21,7 +22,6 @@ public class Main implements RequestHandler<S3Event, String> {
     @Override
     public String handleRequest(S3Event s3Event, Context context) {
 
-        // Extraímos o nome do bucket de origem e a chave do arquivo JSON
         String sourceBucket = s3Event.getRecords().get(0).getS3().getBucket().getName();
         String sourceKey = s3Event.getRecords().get(0).getS3().getObject().getKey();
 
@@ -30,11 +30,13 @@ public class Main implements RequestHandler<S3Event, String> {
             InputStream s3InputStream = s3Client.getObject(sourceBucket, sourceKey).getObjectContent();
 
             // Conversão do JSON para uma lista de objetos Compnentes usando o Mapper
-            Mapper mapper = new Mapper();
-            List<String> cabecalho = mapper.mapHeader(s3InputStream);
-            List<List<Double>> componenteDados = mapper.mapComponentData(s3InputStream);
+            CsvReader reader = new CsvReader();
 
-            // Geração do arquivo CSV a partir da lista usando o CsvWriter
+            List<List<String>> dadosCSV = reader.lerArquivoCSVComSplit(s3InputStream);
+
+            List<String> cabecalho = dadosCSV.get(0);
+            List<List<String>> componenteDados = dadosCSV.subList(1,dadosCSV.size());
+
             CsvWriter csvWriter = new CsvWriter();
             ByteArrayOutputStream csvOutputStream = csvWriter.writeCsv(cabecalho, componenteDados);
 
