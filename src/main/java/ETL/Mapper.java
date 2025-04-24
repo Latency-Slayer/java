@@ -1,16 +1,14 @@
 package ETL;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
 public class Mapper {
-    public List<Components> map(InputStream inputStream) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(inputStream, new TypeReference<List<Components>>() {
-        });
+    public List<String> mapHeader(InputStream inputStream) throws IOException {
+
+    }
+    public List<List<Double>> mapComponentData(InputStream inputStream) throws IOException {
+
     }
 }

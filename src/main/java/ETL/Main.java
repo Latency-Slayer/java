@@ -16,7 +16,7 @@ public class Main implements RequestHandler<S3Event, String> {
     private final AmazonS3 s3Client = AmazonS3ClientBuilder.defaultClient();
 
     // Bucket de destino para o CSV gerado
-    private static final String DESTINATION_BUCKET = "trusted-stocks-lab-lp";
+    private static final String DESTINATION_BUCKET = "trusted-components";
 
     @Override
     public String handleRequest(S3Event s3Event, Context context) {
@@ -29,19 +29,20 @@ public class Main implements RequestHandler<S3Event, String> {
             // Leitura do arquivo JSON do bucket de origem
             InputStream s3InputStream = s3Client.getObject(sourceBucket, sourceKey).getObjectContent();
 
-            // Conversão do JSON para uma lista de objetos Stock usando o Mapper
+            // Conversão do JSON para uma lista de objetos Compnentes usando o Mapper
             Mapper mapper = new Mapper();
-            List<Components> stocks = mapper.map(s3InputStream);
+            List<String> cabecalho = mapper.mapHeader(s3InputStream);
+            List<List<Double>> componenteDados = mapper.mapComponentData(s3InputStream);
 
-            // Geração do arquivo CSV a partir da lista de Stock usando o CsvWriter
+            // Geração do arquivo CSV a partir da lista usando o CsvWriter
             CsvWriter csvWriter = new CsvWriter();
-            ByteArrayOutputStream csvOutputStream = csvWriter.writeCsv(stocks);
+            ByteArrayOutputStream csvOutputStream = csvWriter.writeCsv(cabecalho, componenteDados);
 
             // Converte o ByteArrayOutputStream para InputStream para enviar ao bucket de destino
             InputStream csvInputStream = new ByteArrayInputStream(csvOutputStream.toByteArray());
 
             // Envio do CSV para o bucket de destino
-            s3Client.putObject(DESTINATION_BUCKET, sourceKey.replace(".csv", ".csv"), csvInputStream, null);
+            s3Client.putObject(DESTINATION_BUCKET, sourceKey, csvInputStream, null);
 
             return "Sucesso no processamento";
         } catch (Exception e) {
