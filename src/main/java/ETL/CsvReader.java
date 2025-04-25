@@ -15,11 +15,14 @@ public class CsvReader {
         try {
             entrada = new BufferedReader(new InputStreamReader(inputStream,StandardCharsets.UTF_8));
             String[] registro;
-            String linha = entrada.readLine();
-            while (linha != null){
+            String linha = null;
+
+            while ((linha = entrada.readLine()) != null) {
                 registro = linha.split(";");
                 linhas.add(Arrays.asList(registro));
             }
+
+
         } catch (IOException e) {
             System.out.println("Erro ao ler arquivo");
             e.printStackTrace();
@@ -30,6 +33,7 @@ public class CsvReader {
                 e.printStackTrace();
             }
         }
+
         return linhas;
     }
 }
