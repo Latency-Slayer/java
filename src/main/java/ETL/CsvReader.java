@@ -1,36 +1,32 @@
 package ETL;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class CsvReader {
-    public List<List<String>> lerArquivoCSVComSplit(InputStream inputStream) throws  IOException {
-
+    public List<List<String>> lerArquivoCSVComParser(InputStream inputStream) throws IOException {
         List<List<String>> linhas = new ArrayList<>();
-        BufferedReader entrada = null;
 
-        try {
-            entrada = new BufferedReader(new InputStreamReader(inputStream,StandardCharsets.UTF_8));
-            String[] registro;
-            String linha = null;
-
-            while ((linha = entrada.readLine()) != null) {
-                registro = linha.split(";");
-                linhas.add(Arrays.asList(registro));
-            }
-
-
-        } catch (IOException e) {
-            System.out.println("Erro ao ler arquivo");
-            e.printStackTrace();
-        } finally {
-            try {
-                entrada.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        try (
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+                CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT
+                        .withDelimiter(';')
+                        .withTrim()
+                        .withIgnoreSurroundingSpaces()
+                )
+        ) {
+            for (CSVRecord record : parser) {
+                List<String> linha = new ArrayList<>();
+                record.forEach(linha::add);
+                linhas.add(linha);
             }
         }
 

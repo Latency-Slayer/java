@@ -34,7 +34,7 @@ public class Main implements RequestHandler<S3Event, String> {
             // Conversão do JSON para uma lista de objetos Componentes usando o Mapper
             CsvReader reader = new CsvReader();
 
-            List<List<String>> dadosCSV = reader.lerArquivoCSVComSplit(s3InputStream);
+            List<List<String>> dadosCSV = reader.lerArquivoCSVComParser(s3InputStream);
 
             formmatData(dadosCSV);
 
@@ -70,11 +70,11 @@ public class Main implements RequestHandler<S3Event, String> {
                 headerSplit.replaceAll(s -> s.replace("\"", ""));
 
                 if (headerSplit.size() == 3 && headerSplit.get(2).equals("%") || headerSplit.size() == 3 && headerSplit.get(2).equals("GB")) {
-                    dataLine.set(j, String.valueOf(String.format(Locale.US, "%.2f", Double.valueOf(dataLine.get(j)))));
+                    dataLine.set(j, String.format(Locale.US, "%.2f", Double.valueOf(dataLine.get(j))));
                 } else
 
                 if(headerSplit.get(0).equals("download") || headerSplit.get(0).equals("upload")) {
-                    dataLine.set(j, String.valueOf(String.format(Locale.US, "%.2f", Double.valueOf(dataLine.get(j)))));
+                    dataLine.set(j, String.format(Locale.US, "%.2f", Double.valueOf(dataLine.get(j))));
                 }
             }
         }
